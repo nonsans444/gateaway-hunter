@@ -1,0 +1,22 @@
+{
+  "short_name": "RewardGateway",
+  "name": "RewardGateway Partners & Rewards PWA",
+  "description": "Unlock premium enterprise collaboration rewards and client coupon partnerships in high security.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5968/5968314.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5968/5968314.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#090D1C",
+  "theme_color": "#6366F1",
+  "display": "standalone",
+  "orientation": "portrait"
+}

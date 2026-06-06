@@ -1,0 +1,6 @@
+{
+  "name": "RewardGateway",
+  "description": "Premium Progressive Web App hosting premium collaboration offers. Users claim offers, complete required partner actions, and unlock valuable partner codes and licenses. Includes subscription-driven freemium tiers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

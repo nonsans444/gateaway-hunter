@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User Profile matching
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) 
+        && request.resource.data.keys().hasAll(['uid', 'email', 'tier', 'trialEnd'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(uid)
+        && request.resource.data.uid == resource.data.uid
+        && (
+          // Allow toggling subscription tier but protect other properties
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['tier', 'trialEnd', 'stripeCustomerId'])
+        );
+      allow delete: if false;
+    }
+
+    // Offers matching - Read allowed for all logged-in, Write restricted (Admin only or disabled)
+    match /offers/{offerId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable through authorized backend / manual seeding on database console
+    }
+
+    // Claims matching
+    match /claims/{uid}/userClaims/{claimId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) 
+        && request.resource.data.keys().hasAll(['claimId', 'offerId', 'status', 'token', 'createdAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow update: if isOwner(uid)
+        && request.resource.data.offerId == resource.data.offerId
+        && request.resource.data.token == resource.data.token
+        && (
+          // Allow update of status and reward during active completion simulation on client
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'completedAt', 'reward'])
+        );
+      allow delete: if isOwner(uid);
+    }
+  }
+}

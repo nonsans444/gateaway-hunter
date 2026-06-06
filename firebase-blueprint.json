@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account subscription details, billing info, and plan state",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "tier": { "type": "string", "enum": ["free", "pro"], "description": "Subscription tier: gold-badge pro or standard free" },
+        "trialEnd": { "type": "string", "format": "date-time", "description": "Timestamp when the 3-day free trial on registration ends" },
+        "stripeCustomerId": { "type": "string", "description": "Stripe Customer ID used for payment mapping" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "User sign-up registration timestamp" }
+      },
+      "required": ["uid", "email", "tier", "trialEnd"]
+    },
+    "Offer": {
+      "title": "Collaboration Offer",
+      "description": "Premium brand partner offer including direct base URL, instructions, action required, rewards description, and priority level",
+      "type": "object",
+      "properties": {
+        "offerId": { "type": "string", "description": "Unique offer ID" },
+        "partnerName": { "type": "string", "description": "Name of the brand partner" },
+        "rewardDescription": { "type": "string", "description": "Description of the reward unlocked" },
+        "requiredAction": { "type": "string", "description": "Specific action the user must fulfill on the partner's platform" },
+        "partner_url_base": { "type": "string", "description": "The target partner URL template (ref and token will be appended)" },
+        "isProOnly": { "type": "boolean", "description": "Priority tier lock condition for Pro subscribers" },
+        "rewardPool": { "type": "string", "description": "Hidden reward code (e.g. coupon, voucher, Nitro invitation) only shown for claimed state" }
+      },
+      "required": ["offerId", "partnerName", "rewardDescription", "requiredAction", "partner_url_base", "isProOnly"]
+    },
+    "Claim": {
+      "title": "User Claim Request",
+      "description": "Tracks target offer, active tokens, and completion/payout details",
+      "type": "object",
+      "properties": {
+        "claimId": { "type": "string", "description": "Unique generated claim document ID or UUID" },
+        "offerId": { "type": "string", "description": "Associated offer ID" },
+        "status": { "type": "string", "enum": ["pending", "completed", "failed"], "description": "Claim processing status" },
+        "token": { "type": "string", "description": "Unique verification token generated for verification" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Claim initialized timestamp" },
+        "completedAt": { "type": "string", "format": "date-time", "description": "Fulfillment timestamp" },
+        "reward": { "type": "string", "description": "The custom code voucher revealed on verification" }
+      },
+      "required": ["claimId", "offerId", "status", "token", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User accounts tier tracking and metadata"
+    },
+    "/offers/{offerId}": {
+      "schema": "Offer",
+      "description": "Global corporate collaboration opportunities"
+    },
+    "/claims/{uid}/userClaims/{claimId}": {
+      "schema": "Claim",
+      "description": "User specific claims registry containing state and claims status"
+    }
+  }
+}
